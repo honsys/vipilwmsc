@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <style type="text/css">
+        #mapDiv {
+            width: 512px;
+            height: 512px;
+            border: 1px solid black;
+        }
+    </style>
+    <script src="../lib/OpenLayers.js"></script>
+    <script type="text/javascript">
+        var lon = 0;
+        var lat = 90;
+        var zoom = 1;
+        var map;
+        function init(){
+            map = new OpenLayers.Map( 'mapDiv' );
+            var basemap = new OpenLayers.Layer.WMS( "SummerBMNG", 
+                "http://gdev.sci.gsfc.nasa.gov:9898/wmsc/wmscgiovanni.py/wmsc8km?",
+                {layers: 'SummerBMNG', format: 'png', transparent: 'true' },
+                {singleTile: true, ratio: 1, isBaseLayer: true },
+                // These are the important parts for creating a non-epsg:4326
+                // map: Maxextent is the boundary of the map/tile loading area,
+                // maxResolution is the units/pixel at the highest zoom, and 
+                // projection is the projection to be used in WMS/WFS Requests.
+                {maxResolution: 'auto',  // will automatically fit the map: you can 
+                                         // then check map.baseLayer.resolutions[0] for
+                                         // a reasonable value.
+                 projection:"EPSG:3413", // used in WMS/WFS requests  -- north pole  
+                 units: "d"              // only neccesary for working with scales.
+                } );
+                
+            var vmap0all = new OpenLayers.Layer.WMS( "VMAP0 PoliticalBoundaries and Hydrology", 
+                "http://gdev.sci.gsfc.nasa.gov:9898/wmsc/wmscgiovanni.py/wms8km?",
+                {layers: 'Vmap0PolH2O', format: 'png', transparent: 'true'},
+                {singleTile: true, ratio: 1, isBaseLayer: false} );
+                
+            var vmap0pol = new OpenLayers.Layer.WMS.Untiled( "VMAP0 PoliticalBoundaries", 
+                "http://gdev.sci.gsfc.nasa.gov:9898/wmsc/wmscgiovanni.py/wms8km?",
+                {layers: 'vmap0pol', format: 'png', transparent: 'true'}, {isBaseLayer: false} );
+            var vmap0h20 = new OpenLayers.Layer.WMS.Untiled( "VMAP0 Hydrology", 
+                "http://gdev.sci.gsfc.nasa.gov:9898/wmsc/wmscgiovanni.py/wms8km?",
+                {layers: 'vmap0pol', format: 'png', transparent: 'true'}, {isBaseLayer: false} );
+                
+            map.addLayers([basemap, vmap0]);           
+            map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
+            map.addControl(new OpenLayers.Control.LayerSwitcher());
+        }
+    </script>
+  </head>
+
+<body onload="init()">
+    <div id="mapDiv"></div>
+    <p>OpenLayers 'singleTile: true, ratio: 1 ', BMNG 8km, North pole stereographic projection -- EPSG:3413</p>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <style type="text/css">
+      #map {
+        width: 700px;
+        height: 500px;
+        border: 1px solid gray;
+      }
+      #controlToggle li {
+        list-style: none;
+      }
+      p {
+           width: 700px;
+      }
+    </style>
+    <script src="lib/OpenLayers.js"></script>
+    <script type="text/javascript">
+      function init() {
+        OpenLayers.IMAGE_RELOAD_ATTEMPTS = 1;
+        var map = new OpenLayers.Map('map');
+        var pointLayer = new OpenLayers.Layer.Vector("Point Layer", {wrapDateLine: true});
+        var lineLayer = new OpenLayers.Layer.Vector("Line Layer", {wrapDateLine: true});
+        var polygonLayer = new OpenLayers.Layer.Vector("Polygon Layer", {wrapDateLine: true});
+
+        //var g3wmsurl = "http://gdev.sci.gsfc.nasa.gov:9999/ModPyMemCacheCascadeDemo/wmsgiovanni.py/wmsgiovanni";
+        //var g3wmsurl = "http://gdev.sci.gsfc.nasa.gov:9999/wmsgiovanni/wmsgiovanni.py/wmsgiovanni";
+        var g3wmsurl = "http://hon00:0000/wmsc/wmscgiovanni.py/wmsc2km8km";
+        var wmsbms = new OpenLayers.Layer.WMS("BlueMarble Summer", g3wmsurl,
+                       {layers:"SummerBMNG", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: true});
+        var wmsbmw = new OpenLayers.Layer.WMS("BlueMarble Winter", g3wmsurl,
+                       {layers:"WinterBMNG", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        var wmsV0pol = new OpenLayers.Layer.WMS("VMAP0 World Political Boundaries", g3wmsurl,
+                       {layers:"POLBNDA", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        var wmsV0wat = new OpenLayers.Layer.WMS("VMAP0 World Hydrology", g3wmsurl,
+                       {layers:"POLBNDA,INWATERA", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        var wmsV0polwat = new OpenLayers.Layer.WMS("VMAP0 World Political Boundaries and Hydrology", g3wmsurl,
+                       {layers:"HYDROTXT,POLBNDA,INWATERA", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        var wmsUSV0polwat = new OpenLayers.Layer.WMS("VMAP0 World Political Boundaries and Hydrology", g3wmsurl,
+                       {layers:"USstate,POLBNDA,INWATERA", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        var wmsv0h2o = new OpenLayers.Layer.WMS("VMAP0 Full Hydrology", g3wmsurl,
+                       {layers:"vmap0h2o", format:"image/png"},
+                       {wrapDateLine: true, isBaseLayer: false, opacity: 0.5});
+        //map.addLayers([wmsbms, wmsbmw, wmsV0pol, wmsv0h2o, pointLayer, lineLayer, polygonLayer]);
+        //map.addLayers([wmsbms, wmsbmw, wmsUSV0polwat, pointLayer, lineLayer, polygonLayer]);
+        //map.addLayers([wmsbms, wmsbmw, wmsV0pol, wmsV0polwat, pointLayer, lineLayer, polygonLayer]);
+        //map.addLayers([wmsbms, wmsbmw, wmsV0wat, wmsV0pol, pointLayer, lineLayer, polygonLayer]);
+        map.addLayers([wmsbms, pointLayer, lineLayer, polygonLayer]);
+        map.addControl(new OpenLayers.Control.LayerSwitcher());
+        map.addControl(new OpenLayers.Control.MousePosition());
+            
+        var options = {handlerOptions: {freehand: true}};
+        drawControls = {
+          point: new OpenLayers.Control.DrawFeature(pointLayer, OpenLayers.Handler.Point),
+          line: new OpenLayers.Control.DrawFeature(lineLayer, OpenLayers.Handler.Path, options),
+          polygon: new OpenLayers.Control.DrawFeature(polygonLayer,OpenLayers.Handler.Polygon, options)
+        };
+            
+        for(var key in drawControls) {
+          map.addControl(drawControls[key]);
+        }
+            
+        map.setCenter(new OpenLayers.LonLat(0, 0), 2);
+        document.getElementById('noneToggle').checked = true;
+      }
+
+      function toggleControl(element) {
+        for(key in drawControls) {
+          var control = drawControls[key];
+          if(element.value == key && element.checked) {
+            control.activate();
+          }
+          else {
+            control.deactivate();
+          }
+        }
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <p>OpenLayers Draw Feature and Dynamic Opacity and Wrap Dateline Example;
+       BMNG Summer basemap with Winter BMNG overlay:
+    </p>
+    <div id="map"></div>
+    <ul id="controlToggle">
+      <table border="1">
+        <caption>Navigation and Annotation:</caption>
+        <tr>
+          <td>
+            <input type="radio" name="type" value="none" id="noneToggle"
+                   onclick="toggleControl(this);" checked="checked" />
+            <label for="noneToggle">navigate</label>
+          </td>
+          <td>
+            <input type="radio" name="type" value="point" id="pointToggle" onclick="toggleControl(this);" />
+            <label for="pointToggle">draw point</label>
+          </td>
+          <td>
+            <input type="radio" name="type" value="line" id="lineToggle" onclick="toggleControl(this);" />
+            <label for="lineToggle">draw line</label>
+          </td>
+          <td>
+            <input type="radio" name="type" value="polygon" id="polygonToggle" onclick="toggleControl(this);" />
+            <label for="polygonToggle">draw polygon</label>
+          </td>
+        </tr>
+      </table>
+    </ul>
+    <p>Feature digitizing is in freehand mode by default.  In freehand mode, the mouse is treated as a pen.
+    Drawing begins on mouse down, continues with every mouse move, and ends with mouse up.</p>
+    <p>To turn freehand mode off, hold down the shift key while digitizing.  With freehand mode off, one
+    vertex is added with each click and double-clicks finish drawing.  Freehand mode can be toggled on and off
+    at any time while drawing.</p>
+  </body>
+</html>

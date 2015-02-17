@@ -1,0 +1,380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>G3wmaplinks</title>
+</head>
+<body>
+General design issues and guidelines regarding G3 WebMapService:<br>
+<br>
+00. Client/Server solution<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Example Python soltuon from metacarta:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+http://labs.metacarta.com/wms-c/demo.html?lat=51.50665&amp;lon=-0.16342&amp;zoom=10&amp;layers=00B00000F<br>
+0. Should be fast and light-weight -- server is a daemon (not G3
+workflow), perhaps FastCGI (either Apache or Lighttpd),&nbsp; or
+Twisted.web?<br>
+1. Should provide a single raster image on request -- GIF, or PNG, or
+JPEG? -- via REST (OGC WMS like)&nbsp; or custom SOAP?<br>
+2. The nature/content of the request protocol should indicate lat-lon
+boundary, resolution, and level-of-detail/content, and ?<br>
+&nbsp;&nbsp;&nbsp; WMS protocol may suffice, via the format=image/gif
+or png&nbsp; or jpeg, if the level-of-detail can be accommodated via
+the
+'layers' element value(s), and if the 'layers' can be dynamically
+defined/created <br>
+3. The nature/content of the response protocol should provide the image
+and optional legend?<br>
+&nbsp;&nbsp; WMS protocol reply to client is GML, but all that is
+needed is an HTTP mime type image/gif or png&nbsp; or jpeg?<br>
+4. The image produced should be either a standalone map (with
+desired/requested translucence) or the map superimposed over<br>
+&nbsp;&nbsp;&nbsp; the client's designated 'data' image.<br>
+5. The client should provide a reference to the 'data' image
+(via a dynamically handled 'layer' or a URI?). The service must<br>
+&nbsp;&nbsp; fetch the data and may perform some boundary logic --
+check if the boundary info. provided by the client is consistent with
+(or<br>
+&nbsp;&nbsp; at least within) the&nbsp; 'data'
+image -- i.e. how rigorous should the registration be?<br>
+6. The maximal content of the map image (assuming the client requests
+all possible features with highest available details) should<br>
+&nbsp; include land and water/ice, geo-political boundaries at country
+and state and city levels, and&nbsp; ???<br>
+7. The the&nbsp; case where the&nbsp; bounding area requested by the
+client has no associated map content the service should provide --<br>
+&nbsp;&nbsp; a translucent lat-lon. grid or what?<br>
+8. Other issues TBD...<br>
+&nbsp;&nbsp; Python -- memcached &amp; mmap &amp; cPickle I/O of PIL
+Images, fastCGI with flup and Paste<br>
+<br>
+(mostly free) Data (and some software):<br>
+http://coastalmap.marine.usgs.gov/GISdata<br>
+http://www.weather.gov/geodata/catalog<br>
+http://www.lib.unc.edu/reference/gis/datafinder<br>
+http://data.geocomm.com/catalog/<br>
+http://mirrors.arsc.edu/nasa -- BMNG and more<br>
+http://http://www2.census.gov/geo/tiger -- latest is tiger/tiger2006se
+shapefile(s) folder for each state<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; ala: wget -r --no-parent
+http://www2.census.gov/geo/tiger/tiger2006se<br>
+http://tnatlas.geog.utk.edu/downloadfree.htm -- free tiger to kml
+conversion c++ code and data<br>
+ftp://edcftp.cr.usgs.gov/pub/{data,metadata,software} -- usgs/eros
+stuff (gctpc is an alt. to proj4)<br>
+ftp://aprs.tamu.edu/pub -- linked from
+http://www.xastir.org/wiki/index.php/Major_Features (althoug XASTIR is
+Windows only?)<br>
+http://www.weather.gov/geodata<br>
+http://seamless.usgs.gov<br>
+http://data.geocomm.com/catalog/index.html -- not free<br>
+http://www.mapability.com -- vmap0 and vmap1 now downloadable<br>
+http://wiki.osgeo.org/index.php/Geodata_Repository<br>
+http://www.edc.uri.edu/lme/gisdata.htm<br>
+http://gis.iwlearn.org/sites/demo/demo/primagis/links_to_metadata_and_files<br>
+http://aprsworld.net/gisdata/world/<br>
+http://viz.globe.gov -- global shapefiles<br>
+http://frederic.cs.dal.ca/pub/STDW/DCW -- VMAP0 converted to ESRI
+'*.shp' files<br>
+http://en.wikipedia.org/wiki/Vector_Map<br>
+http://en.wikipedia.org/wiki/National_Geospatial-Intelligence_Agency<br>
+http://www.debrief.info/tutorial/html/tutorial_external_datasets.htm --
+VMAP0 tutorial<br>
+<br>
+Tutorials/HowTos/QuickGuides/CheatSheets:<br>
+http://www.bostongis.com -- postgis, umn mapserver, openlayers<br>
+http://oceanesip.jpl.nasa.gov/esipde/guide.html -- detailed discussion
+of ogc wms specs.
+<br>
+<br>
+Python:<br>
+http://tilecache.org/<br>
+http://dl.maptools.org/dl/shapelib/contrib -- python shapelib ?<br>
+http://zmapserver.sourceforge.net/PCL - python cartographic lib.<br>
+http://www.intl-interfaces.com/cookbook/WMS -- basic-wms2.py is old
+(aug 2001!) and gone? <br>
+http://zmapserver.sourceforge.net/ZCO -- cartographic objects for zope<br>
+http://gispython.org -- python cartographic lib, primagis (umn
+mapserver cgi or mod_python?)<br>
+http://www.pythonware.com/products/pil -- python imaging lib<br>
+<br>
+JavaScript (browser clients):<br>
+http://mapstraction.com (svn checkout http://www.mapstraction.com/svn/
+mapstraction)<br>
+http://openlayers.org -- pure javascript<br>
+http://docs.codehaus.org/display/MAP/Home -- uses openlayers and other
+javascript, but also php or jsp.<br>
+<br>
+Java:<br>
+http://geospatialmethods.org/{interpolating,mapping,searching} -- java
+and c lib.<br>
+http://geoserver.org -- java wms, wfs<br>
+http://geotools.codehaus.org -- open source java gis toolkit<br>
+http://www.deegree.org -- java servlet/tomcat (warfiles)
+wms,wfs,wcs,csw,sos,wts,wps,was,wss 'standards'<br>
+http://www.snowflakesoftware.co.uk/products/gmlviewer<br>
+<br>
+C/PHP:<br>
+http://mapserver.gis.umn.edu -- c/php (fast)cgi (apache, lighttpd?)
+mod_python, etc. wms
+with support for other ogc services via modules<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; php used for 'mapscript', and lots of python
+projects -- python cgi or mod_python, pcl, pil, etc.<br>
+http://mapsnack.sourceforge.net -- mapserver based vmware wms
+'appliance'<br>
+<br>
+C++:<br>
+http://mapguide.osgeo.org<br>
+http://www.celestialmatters.org/cm/hosts/home_t00fri/projects/nmtools/<br>
+<br>
+Web Services (general info.):<br>
+http://www.innoq.com/soa/ws-standards<br>
+<br>
+WMS examples:<br>
+http://www.carto.net/papers/svg/ogc_wms_integration/<br>
+<br>
+The following links provide lots of GIS related Web Services info and
+downloads:<br>
+<br>
+DotOrg and DotNets:<br>
+http://www.gmi.org and http://www.gmi.org/wlms/dcw.htm -- $400 for
+merged vmap0 shapefiles<br>
+http://sigma.openplans.org -- tilecache, openlayers and geoserver
+example. links to tutorial:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+http://docs.codehaus.org/display/MAP/Building+A+Web+App<br>
+http://qgis.org -- C++<br>
+http://dl.maptools.org/dl/shapelib -- C<br>
+http://openjump.org/wiki/show/HomePage -- Java<br>
+http://www.ivtools.org/vhclmaps/vpfviewer.html &amp;
+http://www.ivtools.org/vhclmaps/download.html<br>
+http://www.geoconnections.org<br>
+http://communitymapbuilder.org<br>
+http://vterrain.org<br>
+http://www.gisdevelopment.net/technology/gis/ma06_79b.htm -- an SOA WMS
+article entitiled:<font><font arial="" face="" size="2"><span
+ style="font-weight: bold;"><br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; "</span>Distributed
+Computing Architecture based on Geo Services; A Loosely Coupled Method</font></font>"<br>
+http://mapguide.osgeo.org <br>
+http://www.opengeospatial.org -- the OGC site<br>
+http://www.opengeospatial.org/standards/wms<br>
+http://ndg.badc.rl.ac.uk/csml -- OGC GML application: Climate Science
+Modelling Language<br>
+<br>
+http://www.maptools.org -- also has links to&nbsp; open source projects
+<br>
+http://esipfed.org -- federation of earth science info. partners: NASA,
+NOAA, NSIDC<br>
+http://ncseonline.org -- national council for science &amp;
+environment, global warming<br>
+http://www.earthportal.org -- ?<br>
+<br>
+OpenSourceDotOrgs and DotNets:<br>
+http://www.freegis.org -- lots and lots of links to open source projects<br>
+http://opensourcegis.org -- ditto<br>
+http://www.gisdevelopment.net/downloads/gis/index.htm<br>
+http://cartoweb.org -- Web-GIS software based on umn mapserv<br>
+http://chameleon.maptools -- software for use with umn mapserv<br>
+http://www.gdal.org -- geospatial data abstraction lib c/c++ with
+external deps on hdf4, fits, grass, ogdi, jpeg2k, ecw<br>
+http://geoserver.org -- java wms, wfs<br>
+http://geotools.codehaus.org -- java gis toolkit<br>
+http://grass.itc.it -- geographic resources analysis support system
+(GRASS)<br>
+http://www.cgmopen.org -- webcgm stuff<br>
+http://www.deegree.org -- java servlet/tomcat (warfiles)
+wms,wfs,wcs,csw,sos,wts,wps,was,wss 'standards'<br>
+http://www.mapnik.org -- c++ map gen. with python wrap<br>
+<br>
+W3DotOrg Refs:<br>
+http://www.w3.org/Graphics/SVG/<br>
+http://www.w3.org/Graphics/WebCGM/<br>
+http://www.w3.org/Graphics/PNG/<br>
+<br>
+OpenSourceDotEdus:<br>
+http://elib.cs.berkeley.edu/gis -- Java applet<br>
+http://govinfo.ucsd.edu/gis<br>
+http://mapserver.gis.umn.edu -- c (fast)cgi (apache, lighttpd?) wms
+with support for other ogc services via modules<br>
+http://mapserver.gis.umn.edu/docs/howto/sos_server/#setting-up-an-sos-server-using-mapserver<br>
+http://ngwww.ucar.edu/ng -- viz/graphics lib includes maps<br>
+<br>
+Linux GIS Distros:<br>
+http://wgrass.media.osaka-cu.ac.jp/foss4g/Home?set_language=en<br>
+<br>
+DotComs:<br>
+http://www.mathworks.com/matlabcentral/files/7550/content/html/worlddatamap_examples.html<br>
+http://www.idevio.com/Products.htm and
+http://www.idevio.com/ravegeoinfo.htm<br>
+http://openmap.bbn.com<br>
+http://forum.worldwindcentral.com<br>
+http://www.mapability.com -- VMAP0 downloads<br>
+http://thinkgeo.com -- .NET only?<br>
+http://software.geocomm.com<br>
+http://www.hypergis.com<br>
+http://www.webgis.com<br>
+http://www.esri.com<br>
+http://ondemand.metacarta.com<br>
+http://www.mapcruzin.com<br>
+http://www.mapresources.com<br>
+http://www.dmsolutions.ca/technology/mapserver.html<br>
+http://www.intl-interfaces.com/cookbook/WMS -- example web map service
+using apache mod-python with other howto links<br>
+http://zcologia.com/news/31/discount-wfs-source-for-mapserver --
+example WFS using python twisted web<br>
+http://thepochisuperstarmegashow.com -- YM4R (ruby rails) , GeoRuby,
+GeoKit(?)<br>
+<br>
+Proprietary(?) GIS APIs: <br>
+http://code.google.com/apis/kml/documentation/whatiskml.html<br>
+<br>
+DotGovs:<br>
+<br>
+UK:<br>
+http://www.gogeo.ac.uk<br>
+<br>
+NASA:<br>
+http://visibleearth.nasa.gov<br>
+<br>
+Goddard SVS use of WMS and related links:<br>
+http://svs.gsfc.nasa.gov/documents/standards.html#WMS<br>
+http://www.fgdc.gov/<br>
+http://www.fgdc.gov/metadata/geospatial-metadata-tools<br>
+http://www.fgdc.gov/nsdi/nsdi.html<br>
+<br>
+JPL:<br>
+http://onearth.jpl.nasa.gov/<br>
+<br>
+NOAA:<br>
+http://adds.aviationweather.noaa.gov/<br>
+http://radar.weather.gov/ridge/kmzgenerator.php<br>
+<br>
+NISDC (very informative):<br>
+http://nsidc.org/data/atlas/ogc_services.html<br>
+<br>
+USGS:<br>
+http://webgis.wr.usgs.gov/<br>
+http://nationalmap.gov/<br>
+<br>
+The following is plagiarized from
+http://nsidc.org/data/atlas/ogc_services.html (the NSIDC link also
+provides examples of its services):<br>
+<br>
+The Open Geospatial Consortium (OGC) Web Map Service (WMS), Web Feature
+Service (WFS), and Web Coverage Service (WCS) are international
+specifications that provide a framework for sharing maps and geospatial
+data over the internet. <br>
+<h3>Web Map Service (WMS)</h3>
+<p>Remote access to map and legend images can be obtained via OGC <strong>GetMap</strong>
+and <strong>GetLegendGraphic</strong> requests. These requests can
+include various parameters for customizing output, including those
+listed in the tables below. For complete documentation on creating
+GetMap requests, please see the <a
+ href="http://www.opengeospatial.org/standards/wms">WMS specification</a>
+published through OGC (version 1.1.1). For complete documentation on
+creating GetLegendGraphic requests, please see the <a
+ href="http://www.opengeospatial.org/standards/sld">Styled Layer
+Descriptor (SLD)</a> specification published through OGC.</p>
+Example WMS GetMap:&nbsp; of snow water equivalent over the contiguous
+United States in a geographic projection with a light-blue background --<br>
+<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WMS&amp;version=1.1.1&amp;request=GetMap&amp;srs=EPSG:4326&amp;format=image/gif&amp;width=800&amp;height=500&amp;bbox=-128,24,-62,50&amp;bgcolor=0xAAFFFF&amp;layers=land,snow_water_equivalent_01,united_states_borders">http://nsidc.org/cgi-bin/atlas_north?service=WMS&amp;version=1.1.1&amp;request=GetMap&amp;srs=EPSG:4326&amp;format=image/gif&amp;width=800&amp;height=500&amp;bbox=-128,24,-62,50&amp;bgcolor=0xAAFFFF&amp;layers=land,snow_water_equivalent_01,united_states_borders</a><br>
+<br>
+Example WMS GetLegend: for average January sea ice concentration --<span
+ style="text-decoration: underline;"><br>
+</span>http://nsidc.org/cgi-bin/atlas_north?<span
+ style="text-decoration: underline;"></span>service=WMS&amp;<span
+ style="text-decoration: underline;"></span>version=1.1.1&amp;<span
+ style="text-decoration: underline;"></span>request=GetLegendGraphic&amp;<span
+ style="text-decoration: underline;"></span>format=image/gif&amp;<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WMS&amp;version=1.1.1&amp;request=GetLegendGraphic&amp;format=image/gif&amp;layer=sea_ice_concentration_01">layer=sea_ice_concentration_01</a><br>
+<h3>Web Feature Service (WFS)</h3>
+<p>Remote access to vector source data (points, lines, and polygons)
+can be obtained via an OGC <strong>GetFeature</strong> request. You
+can also obtain additional information about these sources via an OGC <strong>DescribeFeatureType</strong>
+request including the available field names and their data types. These
+request strings must include various parameters, as listed in the
+tables below. While the WMS <a
+ href="http://nsidc.org/data/atlas/ogc_services.html#GetMap">GetMap</a>
+request returns a map image, a WFS GetFeature request returns the
+actual feature data to the client encoded in Geography Markup Language (<a
+ href="http://www.opengeospatial.org/standards/gml">GML</a>) format. As
+a result, this process is more labor-intensive than WMS and can take
+noticeably longer to run depending on the resulting file size. Unlike
+the GetMap request, you cannot specify an alternative spatial reference
+system (EPSG code) for the output. Northern Hemisphere data are
+provided in <a href="http://nsidc.org/data/atlas/epsg_32661.html"
+ title="View projection definition for EPSG:32661."
+ onclick="window.open('', 'projection', 'resizable=yes, width=500, height=800, menubar=no, toolbar=no, location=no, scrollbars=yes, left=150, top=80').focus()"
+ target="projection">EPSG:32661</a>, and Southern Hemisphere data are
+provided in <a href="http://nsidc.org/data/atlas/epsg_3031.html"
+ title="View projection definition for EPSG:3031."
+ onclick="window.open('', 'projection', 'resizable=yes, width=500, height=800, menubar=no, toolbar=no, location=no, scrollbars=yes, left=150, top=80').focus()"
+ target="projection">EPSG:3031</a>. For complete documentation on
+creating GetFeature requests, please see the <a
+ href="http://www.opengeospatial.org/standards/wfs">WFS specification</a>
+published through OGC (version 1.0).</p>
+Example WFS GetFeature:&nbsp; contours for the Greenland ice sheet --<br>
+<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typename=greenland_elevation_contours"><br>
+http://nsidc.org/cgi-bin/atlas_north?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typename=greenland_elevation_contours
+<br>
+</a><a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typename=greenland_elevation_contours">
+</a><br>
+Example WFS DescribeFeatureType: description for the glacier outlines
+feature:<br>
+<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WFS&amp;version=1.0.0&amp;request=DescribeFeatureType&amp;typename=glacier_outlines">http://nsidc.org/cgi-bin/atlas_north?service=WFS&amp;version=1.0.0&amp;request=DescribeFeatureType&amp;typename=glacier_outlines
+</a><br>
+<h3>Web Coverage Service (WCS)</h3>
+<p>Remote access to raster source data (rectangular grids of data
+values) can be obtained via an OGC <strong>GetCoverage</strong>
+request. You can also obtain additional information about these sources
+via an OGC <strong>DescribeCoverage</strong> request such as the
+spatial extent, spatial resolution, grid size, data format, available
+coordinate reference systems, and expected pixel values. These requests
+can include various parameters for customizing output including those
+listed in the tables below. While the WMS <a
+ href="http://nsidc.org/data/atlas/ogc_services.html#GetMap">GetMap</a>
+request returns a map image, a WCS GetCoverage request returns the
+actual raster data to the client in <a
+ href="http://remotesensing.org/geotiff/geotiff.html">GeoTIFF</a>
+format. As a result, this process is more labor-intensive than WMS and
+can take noticeably longer to run depending on the resulting file size.
+For complete documentation on creating GetCoverage and DescribeCoverage
+requests, please see the <a
+ href="http://www.opengeospatial.org/standards/wcs">WCS specification</a>
+published through OGC (version 1.0).<br>
+<br>
+</p>
+Example WCS GetCoverage: 32-bit GeoTIFF of annual average snow
+accumulation on the Greenland ice sheet at 5-km resolution&nbsp; --<br>
+http://nsidc.org/cgi-bin/atlas_north?service=WCS&amp;version=1.0.0&amp;request=GetCoverage&amp;crs=EPSG:32661&amp;format=GeoTIFFFloat32&amp;resx=5000&amp;resy
+=5000&amp;bbox=-500000,-500000,1800000,1700000&amp;<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WCS&amp;version=1.0.0&amp;request=GetCoverage&amp;crs=EPSG:32661&amp;format=GeoTIFFFloat32&amp;resx=5000&amp;resy=5000&amp;bbox=-500000,-500000,1800000,1700000&amp;coverage=greenland_accumulation">coverage=greenland_accumulation</a>
+<strong><br>
+<br>
+<br>
+</strong>Example WCS DescribeCoverage: description for Greenland
+surface elevation:<br>
+<a
+ href="http://nsidc.org/cgi-bin/atlas_north?service=WCS&amp;version=1.0.0&amp;request=DescribeCoverage&amp;coverage=greenland_elevation"><br>
+http://nsidc.org/cgi-bin/atlas_north?service=WCS&amp;version=1.0.0&amp;request=DescribeCoverage&amp;coverage=greenland_elevation</a><br>
+<strong><br>
+<br>
+</strong>
+</body>
+</html>
